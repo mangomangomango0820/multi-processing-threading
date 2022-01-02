@@ -22,7 +22,6 @@ os.getppid()
 
 # Note on Result
 ```python
-
 2022-01-02 18:07:00.272495 86470 MainProcess 420              # pid 86470, main process,      pid cnt 420
 2022-01-02 18:07:00.386738 86476 SpawnPoolWorker-5 True       # pid 86476, SpawnPoolWorker-5, pid cnt 425, process 1
 parent:  86470                                                # starting from here, start 4 processes
