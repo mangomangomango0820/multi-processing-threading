@@ -32,11 +32,23 @@ def boss(name, sleep=4):
     time.sleep(sleep)
     logging.info(f"Boss '{name}': done.")
 
-def ThreadAliveOrNot(thread):
-    if not thread.is_alive():
-        logging.info(f"{thread} Not Alive.")
+def threadStatus(con, thread):
+    info = [thread.is_alive(), thread._started.is_set(), thread._is_stopped]
+
+    dict = {
+        'initial': [False, False, False],
+        'start': [True, True, False],
+        'stop': [False, True, True]
+    }
+
+    if con in dict.keys():
+        if not info == dict[con]:
+            logging.error(f"{thread.name}: {info}")
+        else:
+            logging.info(f"{thread.name}: ident {thread._ident}, is_alive() {thread.is_alive()}, "
+                 f"_started.is_set() {thread._started.is_set()}, _is_stopped {thread._is_stopped}")
     else:
-        logging.info(f"{thread} Alive")
+        logging.info(f"{con} not in list {dict.keys()}")
 
 
 if __name__ == '__main__':
@@ -51,17 +63,17 @@ if __name__ == '__main__':
         START = time.time()
         i = 0
         while time.time()-START < looptime:
-            logging.info(f"****** Sub loop {i} ******")
-            Subthread = threading.Thread(target=worker, kwargs={'name': 'Hanna', 'sleep': 2}, name='WORKER')
-            ThreadAliveOrNot(thread=Subthread)
+            logging.info(f">>> Sub loop {i} <<<")
+            threadWorker = threading.Thread(target=worker, kwargs={'name': 'Hanna', 'sleep': 1}, name='WORKER')
+            threadStatus(con='initial', thread=threadWorker)
 
-            Subthread.start()
-            ThreadAliveOrNot(thread=Subthread)
+            threadWorker.start()
+            threadStatus(con='start', thread=threadWorker)
 
             boss(name='BOSS', sleep=4)
 
-            Subthread.join()
-            ThreadAliveOrNot(thread=Subthread)
+            threadWorker.join()
+            threadStatus(con='stop', thread=threadWorker)
 
             i += 1
         else:

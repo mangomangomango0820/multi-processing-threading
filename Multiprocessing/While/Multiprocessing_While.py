@@ -32,11 +32,22 @@ def boss(name, sleep=4):
     time.sleep(sleep)
     logging.info(f"Boss '{name}': done.")
 
-def ProcessAliveOrNot(pro):
-    if not pro.is_alive():
-        logging.info(f"{pro} Not Alive.")
+def proStatus(con, pro):
+    info = [pro.is_alive(), pro.exitcode]
+
+    dict = {
+        'initial': [False, None],
+        'start': [True, None],
+        'stop': [False, 0],
+    }
+
+    if con in dict.keys():
+        if not info == dict[con]:
+            logging.info(f"{pro.name}: {info}")
+        else:
+            logging.info(f"{pro.name}: is_alive() {pro.is_alive()}, exit code {pro.exitcode}")
     else:
-        logging.info(f"{pro} Alive")
+        logging.info(f"{con} not in list {dict.keys()}")
 
 
 if __name__ == '__main__':
@@ -53,15 +64,15 @@ if __name__ == '__main__':
         while time.time()-START < looptime:
             logging.info(f"****** Sub loop {i} ******")
             Subpro = Process(target=worker, kwargs={'name': 'Hanna', 'sleep': 4}, name='WORKER')
-            ProcessAliveOrNot(pro=Subpro)
+            proStatus(con='initial', pro=Subpro)
 
             Subpro.start()
-            ProcessAliveOrNot(pro=Subpro)
+            proStatus(con='start', pro=Subpro)
 
             boss(name='BOSS', sleep=2)
 
             Subpro.join()
-            ProcessAliveOrNot(pro=Subpro)
+            proStatus(con='stop', pro=Subpro)
 
             i += 1
         else:
